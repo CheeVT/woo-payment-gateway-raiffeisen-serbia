@@ -21,5 +21,11 @@ define( 'WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WOO_RAIFFEISEN_SERBIA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // include main plugin file.
-require_once( WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia.php' );
-new WooRaiffeisenSerbia();
+
+add_action('plugins_loaded', 'wc_raiffeisen_gateway_init', 11);
+
+function wc_raiffeisen_gateway_init()
+{
+    require_once( WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia.php' );
+    new WooRaiffeisenSerbia();
+}
