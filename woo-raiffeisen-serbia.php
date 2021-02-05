@@ -23,9 +23,16 @@ define( 'WOO_RAIFFEISEN_SERBIA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 // include main plugin file.
 
 add_action('plugins_loaded', 'wc_raiffeisen_gateway_init', 11);
-
 function wc_raiffeisen_gateway_init()
 {
     require_once( WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia.php' );
     new WooRaiffeisenSerbia();
+}
+
+add_filter('woocommerce_payment_gateways', 'add_woo_raiffeisen_serbia_to_gateways');
+function add_woo_raiffeisen_serbia_to_gateways($gateways)
+{
+    require_once( WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia-gateway.php' );
+    $gateways[] = 'WooRaiffeisenSerbiaGateway';
+    return $gateways;
 }
