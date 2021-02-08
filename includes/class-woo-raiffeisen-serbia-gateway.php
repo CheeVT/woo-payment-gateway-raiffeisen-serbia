@@ -26,6 +26,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
 
         add_action('woocommerce_receipt_woo_raiffeisen_serbia', array($this, 'receipt_page'));
+
+        add_action('woocommerce_api_' . strtolower(get_class($this)), array($this, 'transaction_verification'));
     } 
     
     public function init_form_fields()
@@ -91,12 +93,56 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         ));
     }
 
+    function process_payment($order_id)
+    {
+        $order = new WC_Order($order_id);
+        return array(
+            'result' => 'success',
+            'redirect' => add_query_arg('order', $order->id, add_query_arg('key', $order->order_key, get_permalink(woocommerce_get_page_id('pay'))))
+        );
+    }
+
     /**
      * Order page
      * @param $order
      */
-    function receipt_page($order)
+
+    public function receipt_page($order){
+        //var_dump($order);
+        echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
+        //WC()->api_request_url('WooRaiffeisenSerbiaGateway')
+        echo '<form action="http://localhost/placanje-test/" method="post" 
+          id="submit_payment_form">
+                <input type="hidden" name="type" value="PAYLOGIN"/>
+                <input type="hidden" name="amount" value="'. $this->get_order_total() .'"/>
+                <input type="hidden" name="returnUrl" value="'. WC()->api_request_url('WooRaiffeisenSerbiaGateway') .'"/>
+                <input type="hidden" name="OrderID" value="'. $order .'"/>
+                <button type="submit">PAY</button>
+                <script type="text/javascript">
+					//jQuery("#submit_payment_form").submit();
+                </script>
+                </form>';
+
+        //var_dump($this->get_return_url());
+    }
+
+    public function transaction_verification()
     {
-        //echo $this->generate_fondy_form($order);
+        if (empty($_POST)) {
+            $callback = json_decode(file_get_contents("php://input"));
+            if (empty($callback)) {
+                wp_die('go away!');
+            }
+            $_POST = array();
+            foreach ($callback as $key => $val) {
+                $_POST[esc_sql($key)] = esc_sql($val);
+            }
+        }
+        $order = wc_get_order($_POST['OrderID']);
+        $order->payment_complete();
+        //var_dump($_POST);
+        //var_dump($order);
+        wp_redirect($this->get_return_url($order));
+        exit;
     }
 }
