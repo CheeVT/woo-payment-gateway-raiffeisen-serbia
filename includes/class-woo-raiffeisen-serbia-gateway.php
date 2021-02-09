@@ -7,6 +7,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     public $terminal_id;
     public $merchant_id;
     public $currency;
+    public $card_logos;
     
     public function __construct()
     {
@@ -30,6 +31,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->terminal_id = $this->get_option('terminalid');
         $this->merchant_id = $this->get_option('merchantid');
         $this->currency = $this->get_option('currency');
+        $this->card_logos = $this->get_option('cardLogos');
         //var_dump($this->payment_gateway_url);
 
         // Actions
@@ -38,6 +40,10 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         add_action('woocommerce_receipt_woo_raiffeisen_serbia', array($this, 'receipt_page'));
 
         add_action('woocommerce_api_' . strtolower(get_class($this)), array($this, 'transaction_verification'));
+
+        // Filters
+        add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
+
     } 
     
     public function init_form_fields()
@@ -90,11 +96,41 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 'default' => __('', 'woo-raiffeisen-serbia'),
                 'desc_tip' => false,
                 'options' => array('941' => 'Serbian dinar (RSD)', '978' => 'Euro (€)', '840' => 'Dollar ($)')
-            )
+            ),
+            'cardLogos' => array(
+                'title' => __('Show card logos', 'woo-raiffeisen-serbia'),
+                'type' => 'checkbox',
+                'label' => __('Show Visa, MasterCard and Raiffeisen Bank logos in the payment methods section on checkout', 'woo-raiffeisen-serbia'),
+                'default' => 'yes',
+            ),
         ));
     }
 
-    function process_payment($order_id)
+    public function show_is_correctly_configured($available_gateways)
+    {
+        foreach ($available_gateways as $gateway) {
+			if ($gateway instanceof WooRaiffeisenSerbiaGateway) {
+                if(!$gateway->terminal_id || !$gateway->merchant_id) {
+                    unset($available_gateways[$gateway->id]);
+                }
+			}
+        }
+        
+        return $available_gateways;
+    }
+
+    public function get_icon()
+    {
+        $icon = '<img src="'.WOO_RAIFFEISEN_SERBIA_PLUGIN_URL.'/assets/images/card-icons.png" alt="Raiffeisen Bank" />';
+
+        if ($this->card_logos == "yes") {
+            return apply_filters('woocommerce_gateway_icon', $icon, $this->id);
+        } else {
+            return false;
+        }
+    }    
+
+    public function process_payment($order_id)
     {
         //validation here
 
