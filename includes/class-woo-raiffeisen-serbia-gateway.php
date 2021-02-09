@@ -23,7 +23,6 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         // Define user set variables
         $this->title = $this->get_option('title');
         $this->description = $this->get_option('description');
-        $this->instructions = $this->get_option('instructions', $this->description);
         $this->test_mode = $this->get_option('testMode');
         $this->payment_gateway_url = $this->test_mode == 'yes' ? 
             'https://ecg.test.upc.ua/ecgtestrs/enter' : 
@@ -61,14 +60,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 'title' => __('Description', 'woo-raiffeisen-serbia'),
                 'type' => 'textarea',
                 'description' => __('Payment method description that the customer will see on your checkout.', 'woo-raiffeisen-serbia'),
-                'default' => __('Please remit payment to Store Name upon pickup or delivery.', 'woo-raiffeisen-serbia'),
-                'desc_tip' => true,
-            ),
-            'instructions' => array(
-                'title' => __('Instructions', 'woo-raiffeisen-serbia'),
-                'type' => 'textarea',
-                'description' => __('Instructions that will be added to the thank you page and emails.', 'wc-gateway-offline'),
-                'default' => '',
+                'default' => __('Pay by credit card. Redirect to Raiffeisen gateway to process payment.', 'woo-raiffeisen-serbia'),
                 'desc_tip' => true,
             ),
             'testMode' => array(
@@ -77,14 +69,6 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 'label' => __('Enable Test Mode', 'woo-raiffeisen-serbia'),
                 'default' => 'yes',
             ),
-            /*'gatewayAddress' => array(
-                'title' => __('Gateway Address', 'woo-raiffeisen-serbia'),
-                'type' => 'select',
-                'description' => __('This controls gateway for form action, and redirect to payment page', 'wc-gateway-offline'),
-                'default' => __('', 'woo-raiffeisen-serbia'),
-                'desc_tip' => true,
-                'options' => array('https://ecg.test.upc.ua/ecgtestrs/enter' => 'Test', 'https://ecommerce.raiffeisenbank.rs/rbrs/enter' => 'Production')
-            ),*/
             'terminalid' => array(
                 'title' => __('Terminal ID', 'woo-raiffeisen-serbia'),
                 'type' => 'text',
@@ -127,6 +111,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
      */
 
     public function receipt_page($order_id){
+
+        //generate signature with .pem file
         
         $form_data = array(
             'TotalAmount' => $this->get_order_total(),
@@ -136,36 +122,21 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             'TerminalID' => $this->terminal_id,
             'Currency' => $this->currency,
             'PurchaseTime' => date("ymdHis"),
+            'locale' => 'rs',
             'Signature' => ''
         );
 
-        //var_dump($order);
         echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
         //WC()->api_request_url('WooRaiffeisenSerbiaGateway')
 
         $this->generate_raiffeisen_form($form_data);
         
-        /*echo '<form action="http://localhost/placanje-test/" method="post" 
-          id="submit_raiffeisen_payment_form">
-                <input type="hidden" name="amount" value="'. $this->get_order_total() .'"/>
-                <input type="hidden" name="returnUrl" value="'. WC()->api_request_url('WooRaiffeisenSerbiaGateway') .'"/>
-                <input type="hidden" name="OrderID" value="'. $order_id .'"/>
-                <input type="hidden" name="MerchantID" value="'. $this->merchant_id .'"/>
-                <input type="hidden" name="TerminalID" value="'. $this->terminal_id .'"/>
-                <button type="submit">PAY</button>
-                <script type="text/javascript">
-					jQuery("#submit_payment_form").submit();
-                </script>
-                </form>';*/
-
-        //var_dump($this->get_return_url());
     }
 
     protected function generate_raiffeisen_form($form_data)
     {
-        //echo '<form action="http://localhost/placanje-test/" method="post" 
-        echo '<form action="' . $this->payment_gateway_url . '" method="post" 
-            id="submit_raiffeisen_payment_form">';
+        //echo '<form action="http://localhost/placanje-test/" method="POST" id="submit_raiffeisen_payment_form">';
+        echo '<form action="' . $this->payment_gateway_url . '" method="POST" id="submit_raiffeisen_payment_form">';
         foreach($form_data as $name => $value) {
             echo '<input type="hidden" name="' . $name . '" value="' . $value . '" />';
         }
