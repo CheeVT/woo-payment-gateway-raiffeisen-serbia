@@ -26,7 +26,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->description = $this->get_option('description');
         $this->test_mode = $this->get_option('testMode');
         $this->payment_gateway_url = $this->test_mode == 'yes' ? 
-            'https://ecg.test.upc.ua/ecgtestrs/enter' : 
+            'https://ecg.test.upc.ua/rbrs/enter' :
             'https://ecommerce.raiffeisenbank.rs/rbrs/enter';
         $this->terminal_id = $this->get_option('terminalid');
         $this->merchant_id = $this->get_option('merchantid');
@@ -146,20 +146,26 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
      * @param $order
      */
 
-    public function receipt_page($order_id){
+    public function receipt_page($order_id)
+    {
+
+        $purchase_time = date("ymdHis");
+        $total_amount = $this->calculate_total_in_cents($this->get_order_total());
 
         //generate signature with .pem file
+        $signature = $this->generate_signature($purchase_time, $order_id, $total_amount);
+
         
         $form_data = array(
-            'TotalAmount' => $this->get_order_total(),
+            'TotalAmount' => $total_amount,
             'returnUrl' => WC()->api_request_url('WooRaiffeisenSerbiaGateway'),
             'OrderID' => $order_id,
             'MerchantID' => $this->merchant_id,
             'TerminalID' => $this->terminal_id,
             'Currency' => $this->currency,
-            'PurchaseTime' => date("ymdHis"),
+            'PurchaseTime' => $purchase_time,
             'locale' => 'rs',
-            'Signature' => ''
+            'Signature' => $signature
         );
 
         echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
@@ -167,6 +173,29 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
         $this->generate_raiffeisen_form($form_data);
         
+    }
+
+    protected function calculate_total_in_cents($total)
+    {
+        return $total * 100;
+    }
+
+    protected function generate_signature($purchase_time, $order_id, $total_amount)
+    {
+        $pem_file = WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'pem/' . $this->merchant_id . '.pem';
+
+        //here
+        $data = "$this->merchant_id;$this->terminal_id;$purchase_time;$order_id;$this->currency;$total_amount;;";
+
+        $fp = fopen($pem_file, "r");
+        $priv_key = fread($fp, 8192);
+        fclose($fp);
+        $pkeyid = openssl_get_privatekey($priv_key);
+        openssl_sign($data, $signature, $pkeyid);
+        openssl_free_key($pkeyid);
+        $b64sign = base64_encode($signature);
+
+        return $b64sign;
     }
 
     protected function generate_raiffeisen_form($form_data)
