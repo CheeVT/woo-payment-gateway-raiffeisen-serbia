@@ -212,6 +212,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
     public function transaction_verification()
     {
+        global $woocommerce;
+
         if (empty($_POST)) {
             $callback = json_decode(file_get_contents("php://input"));
             if (empty($callback)) {
@@ -223,11 +225,41 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             }
         }
 
+        if(! $this->signature_verification($_POST)) return;
+
         $order = new WC_Order($_POST['OrderID']);
-        $order->payment_complete();
-        //var_dump($_POST);
-        //var_dump($order);
+
+        if($this->is_payment_process_success($_POST['TranCode'])) {
+            $order->payment_complete();
+        }
+
+        $woocommerce->cart->empty_cart();
+        
         wp_redirect($this->get_return_url($order));
+        //var_dump($_POST);
         exit;
+    }
+
+    protected function signature_verification($postData)
+    {
+        $cert_file = WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'pem/test-server.cert';
+
+        $signature = base64_decode($postData['Signature']);
+
+        $data = "$postData[MerchantID];$postData[TerminalID];$postData[PurchaseTime];$postData[OrderID];$postData[XID];$postData[Currency];$postData[TotalAmount];$postData[SD];$postData[TranCode];$postData[ApprovalCode];";
+
+        $fp = fopen($cert_file, "r");
+        $cert_key = fread($fp, 8192);
+        fclose($fp);
+        $pkeyid = openssl_get_publickey($cert_key);
+        $verify = openssl_verify($data, $signature, $pkeyid);
+        openssl_free_key($pkeyid);
+
+        return $verify;
+    }
+
+    protected function is_payment_process_success($trans_code)
+    {
+        return $trans_code == '000';
     }
 }
