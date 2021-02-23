@@ -44,7 +44,21 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         // Filters
         add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
 
-    } 
+    }
+
+    public function admin_options()
+    {
+        echo '<h2>' . $this->method_title . '</h2>';
+        echo '<p>' . $this->method_description . '</p>';
+
+        echo '<p>' . __('Please fill Success and Failure URLs to your Merchant interface. Copy API endpoint below:') . '</p>';
+        echo '<code>' . get_site_url() . '/wc-api/' . get_class($this) . '</code>';
+        echo '<hr>';
+
+        echo '<table class="form-table">';
+        $this->generate_settings_html();
+        echo '</table>';
+    }
     
     public function init_form_fields()
     {
@@ -95,7 +109,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 'description' => __('', 'wc-gateway-offline'),
                 'default' => __('', 'woo-raiffeisen-serbia'),
                 'desc_tip' => false,
-                'options' => array('941' => 'Serbian dinar (RSD)', '978' => 'Euro (€)', '840' => 'Dollar ($)')
+                'options' => array('941' => 'Serbian dinar (RSD)')
+                //'options' => array('941' => 'Serbian dinar (RSD)', '978' => 'Euro (€)', '840' => 'Dollar ($)')
             ),
             'cardLogos' => array(
                 'title' => __('Show card logos', 'woo-raiffeisen-serbia'),
