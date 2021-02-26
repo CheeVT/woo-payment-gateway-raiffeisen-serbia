@@ -36,3 +36,28 @@ function add_woo_raiffeisen_serbia_to_gateways($gateways)
     $gateways[] = 'WooRaiffeisenSerbiaGateway';
     return $gateways;
 }
+
+// Raiffeisen Serbia payement gateway description: Append calculated Total in RSD (serbian dinar)
+add_filter( 'woocommerce_gateway_description', 'gateway_raiffeisen_custom_fields', 20, 2 );
+function gateway_raiffeisen_custom_fields($description, $payment_id)
+{
+    global $woocommerce;
+
+    if( 'woo_raiffeisen_serbia' === $payment_id ){
+        ob_start(); // Start buffering
+
+        $woo_currency = get_woocommerce_currency();
+
+        $total = WC()->cart->total;
+
+        if($woo_currency == 'EUR') {
+            $total = $total * 117.64;
+            echo '<div>';
+            echo 'Price in RSD: ' . $total;
+            echo '</div>';
+        }
+
+        $description .= ob_get_clean(); // Append buffered content
+    }
+    return $description;
+}

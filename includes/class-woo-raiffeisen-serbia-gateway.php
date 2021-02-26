@@ -15,7 +15,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->icon = apply_filters('woocommerce_offline_icon', '');
         $this->has_fields = false;
         $this->method_title = __('Raiffeisen Serbia Gateway', 'woo-raiffeisen-serbia');
-        $this->method_description = __('Take a credit card payments on your WooCommerce store using Raiffeisen Bank in Serbia', 'woo-raiffeisen-serbia');
+        $this->method_description = __('Take a credit card payments on your WooCommerce store using Raiffeisen Bank in Serbia.', 'woo-raiffeisen-serbia');
 
         // Load the settings.
         $this->init_form_fields();
@@ -165,10 +165,14 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     {
 
         $purchase_time = date("ymdHis");
-        $total_amount = $this->calculate_total_in_cents($this->get_order_total());
+        //$total_amount = $this->calculate_total_in_cents($this->get_order_total());
+        $total_amount = $this->caltulate_to_rsd($this->get_order_total());
 
         //generate signature with .pem file
         $signature = $this->generate_signature($purchase_time, $order_id, $total_amount);
+
+        //var_dump($total_amount);
+        //exit;
 
         
         $form_data = array(
@@ -188,6 +192,33 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
         $this->generate_raiffeisen_form($form_data);
         
+    }
+
+    protected function caltulate_to_rsd($total)
+    {
+        $currency = $this->check_shop_currency();        
+
+        if($currency['alt_currency'] == '978') {
+            $new_total = $total * 117.64;
+            return $this->calculate_total_in_cents($new_total);
+        }
+
+        return $this->calculate_total_in_cents($total);
+    }
+
+    protected function check_shop_currency()
+    {
+        $woo_currency = get_woocommerce_currency();
+
+        if($woo_currency == 'RSD') {
+
+        }
+
+        if($woo_currency == 'EUR') {
+            $altCurrency = '978';
+            return ['alt_currency' => '978', 'currency' => '941'];
+        }
+
     }
 
     protected function calculate_total_in_cents($total)
