@@ -8,6 +8,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     public $merchant_id;
     public $currency;
     public $card_logos;
+    public $apiKey;
     
     public function __construct()
     {
@@ -32,6 +33,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->merchant_id = $this->get_option('merchantid');
         $this->currency = $this->get_option('currency');
         $this->card_logos = $this->get_option('cardLogos');
+        $this->apiKey = $this->get_option('apiKey');
         //var_dump($this->payment_gateway_url);
 
         // Actions
@@ -44,6 +46,15 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         // Filters
         add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
 
+        $this->checkExchangeRateAPI();
+
+    }
+
+    protected function checkExchangeRateAPI()
+    {
+        if($this->apiKey) {
+            include_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/exchange-rate-api/kursna-lista-api.php';
+        }
     }
 
     public function admin_options()
@@ -62,7 +73,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     
     public function init_form_fields()
     {
-        $this->form_fields = apply_filters('wc_offline_form_fields', array(
+        $this->form_fields = array(
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woo-raiffeisen-serbia'),
                 'type' => 'checkbox',
@@ -102,7 +113,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 'description' => __('This controls the title for the payment method the customer sees during checkout.', 'wc-gateway-offline'),
                 'default' => __('', 'woo-raiffeisen-serbia'),
                 'desc_tip' => true,
-            ),
+            ),            
             'currency' => array(
                 'title' => __('Currency', 'woo-raiffeisen-serbia'),
                 'type' => 'select',
@@ -112,13 +123,26 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 'options' => array('941' => 'Serbian dinar (RSD)')
                 //'options' => array('941' => 'Serbian dinar (RSD)', '978' => 'Euro (€)', '840' => 'Dollar ($)')
             ),
+            'exchangeRate' => array(
+                'title' => __('Exhange rate API', 'woo-raiffeisen-serbia'),
+                'type' => 'checkbox',
+                'label' => __('If you use anything else then RSD for currency, add API ID to convert from EUR, USD, CHF, BGP to RSD', 'woo-raiffeisen-serbia'),
+                'default' => 'no',
+            ),
+            'apiKey' => array(
+                'title' => __('API ID', 'woo-raiffeisen-serbia'),
+                'type' => 'text',
+                'description' => __('Please create API ID on www.kursna-lista.info', 'wc-gateway-offline'),
+                'default' => __('', 'woo-raiffeisen-serbia'),
+                'desc_tip' => true,
+            ),            
             'cardLogos' => array(
                 'title' => __('Show card logos', 'woo-raiffeisen-serbia'),
                 'type' => 'checkbox',
                 'label' => __('Show Visa, MasterCard and Raiffeisen Bank logos in the payment methods section on checkout', 'woo-raiffeisen-serbia'),
                 'default' => 'yes',
             ),
-        ));
+        );
     }
 
     public function show_is_correctly_configured($available_gateways)
