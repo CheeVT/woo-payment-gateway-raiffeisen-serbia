@@ -61,3 +61,21 @@ function gateway_raiffeisen_custom_fields($description, $payment_id)
     }
     return $description;
 }
+/*
+add_action('wp', 'cronstarter_activation');
+
+function cronstarter_activation()
+{
+    if (!wp_next_scheduled('kursna_lista_task_hook23')) {
+        wp_schedule_event( time(), 'kursna_lista_api5', 'kursna_lista_task_hook23' );
+    }
+}
+
+add_action('kursna_lista_task_hook23', 'grab_rate');
+
+function grab_rate()
+{
+    file_put_contents("test-11.txt", "Hello World. Testing!", FILE_APPEND);
+}*/
+
+include_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/exchange-rate-api/kursna-lista-api.php';

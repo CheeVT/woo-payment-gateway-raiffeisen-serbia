@@ -46,16 +46,16 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         // Filters
         add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
 
-        $this->checkExchangeRateAPI();
+        //$this->checkExchangeRateAPI();
 
     }
 
-    protected function checkExchangeRateAPI()
+    /*protected function checkExchangeRateAPI()
     {
         if($this->apiKey) {
             include_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/exchange-rate-api/kursna-lista-api.php';
         }
-    }
+    }*/
 
     public function admin_options()
     {
