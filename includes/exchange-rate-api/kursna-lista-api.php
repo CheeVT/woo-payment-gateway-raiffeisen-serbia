@@ -7,36 +7,37 @@ class KursnaListaAPI {
 
         add_action('wp', array(__CLASS__, 'cronstarter_activation'));
         
-        add_action('kursna_lista_srbija_func', array(__CLASS__, 'grab_rate'));
-
-        
+        add_action('kursna_lista_srbija_func', array(__CLASS__, 'grab_rate'));        
     }
 
-    public function kursna_lista_cron_schedules($schedules)
+    public static function kursna_lista_cron_schedules($schedules)
     {
-        //if(!isset($schedules["kursna_lista_api"])){
+        if(!isset($schedules["kursna_lista_srbija"])){
             $schedules["kursna_lista_srbija"] = array(
-                'interval' => 120, //every 5 minutes
+                'interval' => 60, //every 5 minutes
                 'display' => __('Import exchange rate from API')
             );
-        //}
-        /*echo '<pre>';
-        print_r($schedules);
-        echo '</pre>';*/
+        }
         return $schedules;
     }
 
-    public function cronstarter_activation()
+    public static function cronstarter_activation()
     {        
         if (!wp_next_scheduled('kursna_lista_srbija_func')) {
             wp_schedule_event( time(), 'kursna_lista_srbija', 'kursna_lista_srbija_func' );
         }
+        
+         /*echo '<pre>';
+        print_r(get_option('cron'));
+        echo '</pre>';*/
     }
 
-    public function grab_rate()
+    public static function grab_rate()
     {
         $settings = get_option('woocommerce_woo_raiffeisen_serbia_settings');
-        if(isset($settings['apiKey'])) {
+        //return;
+        $log = 'Nije setupovano!';
+        if(isset($settings['apiKey']) && trim($settings['apiKey'])) {
             $apiKey = $settings['apiKey'];
 
             $url = 'https://api.kursna-lista.info/'.$apiKey.'/kursna_lista/json';

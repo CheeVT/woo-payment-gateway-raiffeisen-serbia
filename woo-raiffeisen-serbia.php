@@ -21,18 +21,23 @@ define( 'WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'WOO_RAIFFEISEN_SERBIA_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // include main plugin file.
+require_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia-activator.php';
+register_activation_hook(__FILE__, array('WooRaiffeisenSerbiaActivator', 'plugin_activation'));
+
+require_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia-deactivator.php';
+register_deactivation_hook(__FILE__, array('WooRaiffeisenSerbiaDeactivator', 'plugin_deactivation'));
 
 add_action('plugins_loaded', 'wc_raiffeisen_gateway_init', 11);
 function wc_raiffeisen_gateway_init()
 {
-    require_once( WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia.php' );
+    require_once(WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia.php');
     new WooRaiffeisenSerbia();
 }
 
 add_filter('woocommerce_payment_gateways', 'add_woo_raiffeisen_serbia_to_gateways');
 function add_woo_raiffeisen_serbia_to_gateways($gateways)
 {
-    require_once( WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia-gateway.php' );
+    require_once(WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia-gateway.php');
     $gateways[] = 'WooRaiffeisenSerbiaGateway';
     return $gateways;
 }
@@ -61,21 +66,3 @@ function gateway_raiffeisen_custom_fields($description, $payment_id)
     }
     return $description;
 }
-/*
-add_action('wp', 'cronstarter_activation');
-
-function cronstarter_activation()
-{
-    if (!wp_next_scheduled('kursna_lista_task_hook23')) {
-        wp_schedule_event( time(), 'kursna_lista_api5', 'kursna_lista_task_hook23' );
-    }
-}
-
-add_action('kursna_lista_task_hook23', 'grab_rate');
-
-function grab_rate()
-{
-    file_put_contents("test-11.txt", "Hello World. Testing!", FILE_APPEND);
-}*/
-
-include_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/exchange-rate-api/kursna-lista-api.php';

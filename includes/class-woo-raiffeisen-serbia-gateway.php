@@ -294,8 +294,10 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
                 $_POST[esc_sql($key)] = esc_sql($val);
             }
         }
-
-        if(! $this->signature_verification($_POST)) return;
+        
+        if(! $this->signature_verification($_POST)) {
+            wp_die('signature verification failed!');
+        };
 
         $order = new WC_Order($_POST['OrderID']);
 
