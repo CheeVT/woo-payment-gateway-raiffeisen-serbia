@@ -176,7 +176,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $order = new WC_Order($order_id);
         return array(
             'result' => 'success',
-            'redirect' => add_query_arg('order', $order->id, add_query_arg('key', $order->order_key, get_permalink(woocommerce_get_page_id('checkout'))))
+            'redirect' => $order->get_checkout_payment_url( true )
+            //'redirect' => add_query_arg('order_id', $order->get_id(), add_query_arg('key', $order->get_order_key(), get_permalink(wc_get_page_id('checkout'))))
         );
     }
 
