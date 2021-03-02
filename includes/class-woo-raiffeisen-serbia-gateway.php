@@ -177,7 +177,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
         $purchase_time = date("ymdHis");
         //$total_amount = $this->calculate_total_in_cents($this->get_order_total());
-        $total_amount = $this->caltulate_to_rsd($this->get_order_total());
+        $total_amount = $this->total_in_rsd($this->get_order_total());
 
         //generate signature with .pem file
         $signature = $this->generate_signature($purchase_time, $order_id, $total_amount);
@@ -205,31 +205,33 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         
     }
 
-    protected function caltulate_to_rsd($total)
+    protected function total_in_rsd($total)
     {
-        $currency = $this->check_shop_currency();        
+        $currency = get_woocommerce_currency();
 
-        if($currency['alt_currency'] == '978') {
-            $new_total = $total * 117.64;
-            return $this->calculate_total_in_cents($new_total);
+        if($currency != 'RSD') {
+            $total = $this->convert_to_rsd($total, $currency);
         }
 
         return $this->calculate_total_in_cents($total);
     }
 
-    protected function check_shop_currency()
-    {
-        $woo_currency = get_woocommerce_currency();
+    protected function convert_to_rsd($total, $currency) {
+        //print_r($total);
+       // print_r($currency);
+        //$currency = 'HRK';
 
-        if($woo_currency == 'RSD') {
-
+        if(! isset($this->exchange_rates_data[strtolower($currency)])) {
+            die('there is no currency in exchange rates!');
         }
 
-        if($woo_currency == 'EUR') {
-            $altCurrency = '978';
-            return ['alt_currency' => '978', 'currency' => '941'];
+        $rate = $this->exchange_rates_data[strtolower($currency)];
+
+        if(! isset($rate['sre'])) {
+            die('there is no currency in exchange rates!');
         }
 
+        return $total * $rate['sre'];
     }
 
     protected function calculate_total_in_cents($total)
