@@ -8,6 +8,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     public $merchant_id;
     public $currency;
     public $card_logos;
+    public $exchange_rate;
     public $apiKey;
     public $exchange_rates_data;
     
@@ -35,6 +36,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->merchant_id = $this->get_option('merchantid');
         $this->currency = $this->get_option('currency');
         $this->card_logos = $this->get_option('cardLogos');
+        $this->exchange_rate = $this->get_option('exchangeRate');
         $this->apiKey = $this->get_option('apiKey');
         //var_dump($this->payment_gateway_url);
 
@@ -52,7 +54,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
     public function admin_options()
     {
-        include_once (WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'templates/admin-exchange-rate-template.php');
+        include_once (WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'templates/admin-settings-page-template.php');
     }
     
     public function init_form_fields()

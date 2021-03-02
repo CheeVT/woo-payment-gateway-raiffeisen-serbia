@@ -28,7 +28,7 @@ class KursnaListaAPI {
     protected function set_cron_jobs()
     {
         //unschedule cron if api key is blank
-        if(isset($this->plugin_settings['apiKey']) && ! trim($this->plugin_settings['apiKey'])) {
+        if(! $this->is_api_enabled()) {
             wp_unschedule_event(time(), 'kursna_lista_srbija_func');
             wp_clear_scheduled_hook('kursna_lista_srbija_func');
             return;
@@ -39,6 +39,15 @@ class KursnaListaAPI {
         add_action('wp', array($this, 'cronstarter_activation'));
         
         add_action('kursna_lista_srbija_func', array($this, 'fetch_rate_and_update'));
+    }
+
+    protected function is_api_enabled()
+    {
+        if($this->plugin_settings['exchangeRate'] == 'no')  return false;
+        
+        if(isset($this->plugin_settings['apiKey']) && ! trim($this->plugin_settings['apiKey'])) return false;
+
+        return true;
     }
 
     public static function kursna_lista_cron_schedules($schedules)
