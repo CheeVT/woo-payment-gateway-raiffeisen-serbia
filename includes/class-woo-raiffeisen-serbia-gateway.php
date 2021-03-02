@@ -9,6 +9,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     public $currency;
     public $card_logos;
     public $apiKey;
+    public $exchange_rates_data;
     
     public function __construct()
     {
@@ -17,6 +18,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->has_fields = false;
         $this->method_title = __('Raiffeisen Serbia Gateway', 'woo-raiffeisen-serbia');
         $this->method_description = __('Take a credit card payments on your WooCommerce store using Raiffeisen Bank in Serbia.', 'woo-raiffeisen-serbia');
+        $this->exchange_rates_data = KursnaListaAPI::get_exchange_rates_data();
 
         // Load the settings.
         $this->init_form_fields();
@@ -46,29 +48,11 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         // Filters
         add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
 
-        //$this->checkExchangeRateAPI();
-
     }
-
-    /*protected function checkExchangeRateAPI()
-    {
-        if($this->apiKey) {
-            include_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/exchange-rate-api/kursna-lista-api.php';
-        }
-    }*/
 
     public function admin_options()
     {
-        echo '<h2>' . $this->method_title . '</h2>';
-        echo '<p>' . $this->method_description . '</p>';
-
-        echo '<p>' . __('Please fill Success and Failure URLs to your Merchant interface. Copy API endpoint below:') . '</p>';
-        echo '<code>' . get_site_url() . '/wc-api/' . get_class($this) . '</code>';
-        echo '<hr>';
-
-        echo '<table class="form-table">';
-        $this->generate_settings_html();
-        echo '</table>';
+        include_once (WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'templates/admin-exchange-rate-template.php');
     }
     
     public function init_form_fields()
