@@ -11,6 +11,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     public $exchange_rate;
     public $apiKey;
     public $exchange_rates_data;
+    public $checkout_currency;
     
     public function __construct()
     {
@@ -38,6 +39,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->card_logos = $this->get_option('cardLogos');
         $this->exchange_rate = $this->get_option('exchangeRate');
         $this->apiKey = $this->get_option('apiKey');
+        $this->checkout_currency = get_woocommerce_currency();
         //var_dump($this->payment_gateway_url);
 
         // Actions
@@ -50,6 +52,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         // Filters
         add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
 
+        add_filter( 'woocommerce_gateway_description', array($this, 'gateway_raiffeisen_custom_fields'), 20, 2 );
     }
 
     public function admin_options()
@@ -146,15 +149,15 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
     protected function is_raiffeisen_gateway_available($gateway)
     {
-        $currency = get_woocommerce_currency();
-
         if(!$gateway->terminal_id || !$gateway->merchant_id) return false;
+
+        if($this->checkout_currency == 'RSD') return true;
 
         if($this->exchange_rate == 'no') return false;
 
-        if(! isset($this->exchange_rates_data[strtolower($currency)])) return false;
+        if(isset($this->exchange_rates_data[strtolower($this->checkout_currency)])) return true;
 
-        return true;
+        return false;
     }
 
     public function get_icon()
@@ -210,32 +213,30 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         );
 
         echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
-
+        if($this->checkout_currency != 'RSD') {
+            echo '<p>Converted price for Raiffeisen gateway: <strong>' . $this->convert_to_rsd($this->get_order_total()) . ' RSD</strong></p>';
+        }
         $this->generate_raiffeisen_form($form_data);
         
     }
 
     protected function total_in_rsd($total)
     {
-        $currency = get_woocommerce_currency();
-
-        if($currency != 'RSD') {
-            $total = $this->convert_to_rsd($total, $currency);
+        if($this->checkout_currency != 'RSD') {
+            $total = $this->convert_to_rsd($total);
         }
 
         return $this->calculate_total_in_cents($total);
     }
 
-    protected function convert_to_rsd($total, $currency) {
-        //print_r($total);
-       // print_r($currency);
-        //$currency = 'HRK';
+    protected function convert_to_rsd($total) {
+        if($this->checkout_currency == 'RSD') return $total;
 
-        if(! isset($this->exchange_rates_data[strtolower($currency)])) {
+        if(! isset($this->exchange_rates_data[strtolower($this->checkout_currency)])) {
             die('There is no currency in exchange rates! Please choose other payment method.');
         }
 
-        $rate = $this->exchange_rates_data[strtolower($currency)];
+        $rate = $this->exchange_rates_data[strtolower($this->checkout_currency)];
 
         if(! isset($rate['sre'])) {
             die('there is no currency in exchange rates!');
@@ -333,4 +334,24 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     {
         return $trans_code == '000';
     }
+
+    // Raiffeisen Serbia payement gateway description: Append calculated Total in RSD (serbian dinar)
+    public function gateway_raiffeisen_custom_fields($description, $payment_id)
+    {
+        global $woocommerce;
+
+        if('woo_raiffeisen_serbia' === $payment_id){            
+            $total = WC()->cart->total;
+            
+            if($this->checkout_currency != 'RSD') {
+                $total = $this->convert_to_rsd($total, $this->checkout_currency);
+
+                $description .= '<p>';
+                $description .= 'Converted price for Raiffeisen gateway: <strong>' . $total . ' RSD</strong>';
+                $description .= '</p>';
+            }
+        }
+        return $description;
+    }
+
 }
