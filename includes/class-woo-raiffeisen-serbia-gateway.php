@@ -50,10 +50,12 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
         add_action('woocommerce_api_' . strtolower(get_class($this)), array($this, 'transaction_verification'));
 
+        add_action('woocommerce_admin_order_totals_after_total', array($this, 'custom_admin_order_paid_in_rsd_after_total'), 10, 1 );
+
         // Filters
         add_filter('woocommerce_available_payment_gateways', array($this, 'show_is_correctly_configured'));
 
-        add_filter( 'woocommerce_gateway_description', array($this, 'gateway_raiffeisen_custom_fields'), 20, 2 );
+        add_filter( 'woocommerce_gateway_description', array($this, 'gateway_raiffeisen_custom_fields'), 20, 2 );    
     }
 
     public function admin_options()
@@ -306,6 +308,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $order = new WC_Order($_POST['OrderID']);
 
         if($this->is_payment_process_success($_POST['TranCode'])) {
+            $order->update_meta_data('total_paid_in_rsd', $this->convert_to_rsd($order->get_total()));
             $order->payment_complete();
         }
 
@@ -349,7 +352,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             
             //if($this->checkout_currency != 'RSD') {
             if(! in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) {
-                $total = $this->convert_to_rsd($total, $this->checkout_currency);
+                $total = $this->convert_to_rsd($total);
 
                 $description .= '<p>';
                 $description .= 'Converted price for Raiffeisen gateway: <strong>' . $total . ' RSD</strong>';
@@ -357,6 +360,30 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             }
         }
         return $description;
+    }
+
+    
+    public function custom_admin_order_paid_in_rsd_after_total($order_id)
+    {
+        $order = new WC_Order($order_id);
+        $paymentMethod = $order->get_payment_method();
+
+        if($paymentMethod == 'woo_raiffeisen_serbia') {
+            $total_paid = $order->get_meta('total_paid_in_rsd');
+            if(!$total_paid) return;
+
+            echo '<table class="wc-order-totals">';
+            echo '<tr>';
+            echo '<td class="label label-highlight">Paid in RSD:</td>';
+            echo '<td width="1%"></td>';
+            echo '<td class="total">';
+            echo '<span class="woocommerce-Price-amount amount">';
+            echo '' . $total_paid . 'RSD';
+            echo '</span>';
+            echo '</td>';
+            echo '</tr>';
+            echo '</table>';
+        }
     }
 
 }
