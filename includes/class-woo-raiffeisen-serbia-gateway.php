@@ -135,13 +135,26 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     {
         foreach ($available_gateways as $gateway) {
 			if ($gateway instanceof WooRaiffeisenSerbiaGateway) {
-                if(!$gateway->terminal_id || !$gateway->merchant_id) {
+                if(! $this->is_raiffeisen_gateway_available($gateway)) {
                     unset($available_gateways[$gateway->id]);
                 }
 			}
         }
         
         return $available_gateways;
+    }
+
+    protected function is_raiffeisen_gateway_available($gateway)
+    {
+        $currency = get_woocommerce_currency();
+
+        if(!$gateway->terminal_id || !$gateway->merchant_id) return false;
+
+        if($this->exchange_rate == 'no') return false;
+
+        if(! isset($this->exchange_rates_data[strtolower($currency)])) return false;
+
+        return true;
     }
 
     public function get_icon()
@@ -171,12 +184,10 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
      * Order page
      * @param $order
      */
-
     public function receipt_page($order_id)
     {
-
         $purchase_time = date("ymdHis");
-        //$total_amount = $this->calculate_total_in_cents($this->get_order_total());
+        
         $total_amount = $this->total_in_rsd($this->get_order_total());
 
         //generate signature with .pem file
@@ -199,7 +210,6 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         );
 
         echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
-        //WC()->api_request_url('WooRaiffeisenSerbiaGateway')
 
         $this->generate_raiffeisen_form($form_data);
         
@@ -222,7 +232,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         //$currency = 'HRK';
 
         if(! isset($this->exchange_rates_data[strtolower($currency)])) {
-            die('there is no currency in exchange rates!');
+            die('There is no currency in exchange rates! Please choose other payment method.');
         }
 
         $rate = $this->exchange_rates_data[strtolower($currency)];
