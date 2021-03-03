@@ -12,6 +12,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     public $apiKey;
     public $exchange_rates_data;
     public $checkout_currency;
+    public $rsd_currency_abbreviations = ['rsd', 'рсд', 'din', 'дин'];
     
     public function __construct()
     {
@@ -39,7 +40,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $this->card_logos = $this->get_option('cardLogos');
         $this->exchange_rate = $this->get_option('exchangeRate');
         $this->apiKey = $this->get_option('apiKey');
-        $this->checkout_currency = get_woocommerce_currency();
+        $this->checkout_currency = strtolower(get_woocommerce_currency());
         //var_dump($this->payment_gateway_url);
 
         // Actions
@@ -151,7 +152,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     {
         if(!$gateway->terminal_id || !$gateway->merchant_id) return false;
 
-        if($this->checkout_currency == 'RSD') return true;
+        if(in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) return true;
+        //if($this->checkout_currency == 'RSD') return true;
 
         if($this->exchange_rate == 'no') return false;
 
@@ -213,7 +215,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         );
 
         echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
-        if($this->checkout_currency != 'RSD') {
+        //if($this->checkout_currency != 'RSD') {
+        if(! in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) {
             echo '<p>Converted price for Raiffeisen gateway: <strong>' . $this->convert_to_rsd($this->get_order_total()) . ' RSD</strong></p>';
         }
         $this->generate_raiffeisen_form($form_data);
@@ -222,7 +225,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
     protected function total_in_rsd($total)
     {
-        if($this->checkout_currency != 'RSD') {
+        //if($this->checkout_currency != 'RSD') {
+        if(! in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) {
             $total = $this->convert_to_rsd($total);
         }
 
@@ -230,7 +234,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
     }
 
     protected function convert_to_rsd($total) {
-        if($this->checkout_currency == 'RSD') return $total;
+        if(in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) return $total;
 
         if(! isset($this->exchange_rates_data[strtolower($this->checkout_currency)])) {
             die('There is no currency in exchange rates! Please choose other payment method.');
@@ -343,7 +347,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         if('woo_raiffeisen_serbia' === $payment_id){            
             $total = WC()->cart->total;
             
-            if($this->checkout_currency != 'RSD') {
+            //if($this->checkout_currency != 'RSD') {
+            if(! in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) {
                 $total = $this->convert_to_rsd($total, $this->checkout_currency);
 
                 $description .= '<p>';

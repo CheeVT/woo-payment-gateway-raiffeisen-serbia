@@ -27,8 +27,8 @@ register_activation_hook(__FILE__, array('WooRaiffeisenSerbiaActivator', 'plugin
 require_once WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia-deactivator.php';
 register_deactivation_hook(__FILE__, array('WooRaiffeisenSerbiaDeactivator', 'plugin_deactivation'));
 
-add_action('plugins_loaded', 'wc_raiffeisen_gateway_init', 11);
-function wc_raiffeisen_gateway_init()
+add_action('plugins_loaded', 'wc_raiffeisen_serbia_gateway_init', 11);
+function wc_raiffeisen_serbia_gateway_init()
 {
     require_once(WOO_RAIFFEISEN_SERBIA_PLUGIN_PATH . 'includes/class-woo-raiffeisen-serbia.php');
     new WooRaiffeisenSerbia();
