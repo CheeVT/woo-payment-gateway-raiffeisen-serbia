@@ -248,12 +248,12 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             die('there is no currency in exchange rates!');
         }
 
-        return $total * $rate['sre'];
+        return round($total * $rate['sre'], 2);
     }
 
     protected function calculate_total_in_cents($total)
     {
-        return $total * 100;
+        return round($total, 2) * 100;
     }
 
     protected function generate_signature($purchase_time, $order_id, $total_amount)
