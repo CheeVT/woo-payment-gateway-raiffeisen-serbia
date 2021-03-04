@@ -9,8 +9,7 @@ class KursnaListaAPI {
     {
         $this->plugin_settings = get_option('woocommerce_woo_raiffeisen_serbia_settings');
 
-        $this->set_cron_jobs();
-        
+        $this->set_cron_jobs();        
     }
 
     public static function get_exchange_rates_data()
@@ -39,6 +38,8 @@ class KursnaListaAPI {
         add_action('wp', array($this, 'cronstarter_activation'));
         
         add_action('kursna_lista_srbija_func', array($this, 'fetch_rate_and_update'));
+
+        add_action('wp_ajax_fetch_rates', array($this, 'fetch_rate_and_update'));
     }
 
     protected function is_api_enabled()
@@ -77,21 +78,25 @@ class KursnaListaAPI {
         $content = file_get_contents($url);
 
         if (empty($content)) {
-            $log = 'Greška u preuzimanju podataka';
+            $response = ['status' => 'fail', 'msg' => 'Greška u preuzimanju podataka'];
             //die('Greška u preuzimanju podataka');
         }
 
         $data = json_decode($content, true);
 
         if ($data['status'] == 'ok') {
-            $log = 'Uspešno!';
+            $response = ['status' => 'success', 'msg' => 'Uspešno ažurirana lista!'];
             update_option(self::$option_name, $content);
         } else {
-            $log = "Došlo je do greške: " . $data['code'] . " - " . $data['msg'];
-        }
-        
+            $msg = "Došlo je do greške: " . $data['code'] . " - " . $data['msg'];
+            $response = ['status' => 'fail', 'msg' => $msg];
+        }        
 
-        file_put_contents("test-11.txt", $log, FILE_APPEND);
+        //file_put_contents("test-11.txt", $response['msg'], FILE_APPEND);
+
+        wp_send_json($response);
+
+        die;
     }
 
 }

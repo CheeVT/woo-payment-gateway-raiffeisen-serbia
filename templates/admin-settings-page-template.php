@@ -19,7 +19,10 @@ echo '</pre>';*/
     </div>
     <?php if($this->exchange_rate == 'yes'): ?>
         <div class="woo-raiffeisen-exchange-rates"">
-            <h2>Kursna Lista</h2>
+            <div class="heading">
+                <h2>Kursna Lista</h2>
+                <span><a href="#" id="fetch-rates">Ažuriraj</a></span>
+            </div>
             <table class="widefat fixed striped exchange-rate-table">
                 <?php if($this->exchange_rates_data && is_array($this->exchange_rates_data)): ?>
                     <thead>
@@ -67,6 +70,12 @@ echo '</pre>';*/
         padding-left: 2%;
     }
 
+    .woo-raiffeisen-exchange-rates .heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     .exchange-rate-table {
         width: 250px;
     }
@@ -100,5 +109,14 @@ jQuery(function($) {
             $('#woocommerce_woo_raiffeisen_serbia_apiKey').parents('tr').hide();
         }
     }
+
+    $('#fetch-rates').on('click', function(e) {
+        e.preventDefault();
+
+        $.post(ajaxurl, {'action': 'fetch_rates'}, function(response) {
+            alert(response.msg)
+            window.location.reload(true);
+		});
+    })
 });
 </script>
