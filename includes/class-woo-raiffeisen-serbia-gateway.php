@@ -245,7 +245,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         $rate = $this->exchange_rates_data[strtolower($this->checkout_currency)];
 
         if(! isset($rate['sre'])) {
-            die('there is no currency in exchange rates!');
+            die('There is no currency in exchange rates!');
         }
 
         return round($total * $rate['sre'], 2);

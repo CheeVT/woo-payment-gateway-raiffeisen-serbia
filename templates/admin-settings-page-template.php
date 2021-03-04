@@ -6,7 +6,7 @@ echo '</pre>';*/
 
 //var_dump($this->exchange_rate);
 ?>
-<div style="display: flex; flex-flow: row;">
+<div class="woo-raiffeisen-container">
     <div class="woo-raiffeisen-settings">
         <h2><?php echo $this->method_title; ?></h2>
         <p><?php echo $this->method_description; ?></p>
@@ -20,22 +20,29 @@ echo '</pre>';*/
     <?php if($this->exchange_rate == 'yes'): ?>
         <div class="woo-raiffeisen-exchange-rates"">
             <h2>Kursna Lista</h2>
-            <table>
+            <table class="widefat fixed striped exchange-rate-table">
                 <?php if($this->exchange_rates_data && is_array($this->exchange_rates_data)): ?>
-                    <tr>
-                        <th><?php echo $this->exchange_rates_data['date']; ?></th>
-                    </tr>
-                    <?php unset($this->exchange_rates_data['date']); ?>
-                    <?php foreach($this->exchange_rates_data as $currency => $rate): ?>
+                    <thead>
                         <tr>
-                            <td><?php echo $currency; ?></td>
-                            <td><?php echo $rate['sre']; ?></td>
+                            <th>Na dan:</th>
+                            <th><?php echo $this->exchange_rates_data['date']; ?></th>
                         </tr>
-                    <?php endforeach; ?>
+                    </thead>
+                    <?php unset($this->exchange_rates_data['date']); ?>
+                    <tbody id="the-list">
+                        <?php foreach($this->exchange_rates_data as $currency => $rate): ?>
+                            <tr>
+                                <td><?php echo strtoupper($currency); ?></td>
+                                <td><?php echo $rate['sre']; ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
                 <?php else: ?>
-                    <tr>
-                        <td>Nema trenutno importovanih valuta i kurseva</td>
-                    </tr>
+                    <tbody id="the-list">
+                        <tr>
+                            <td>Nema trenutno importovanih valuta i kurseva</td>
+                        </tr>
+                    </tbody>
                 <?php endif; ?>
             </table>
         </div>
@@ -43,13 +50,38 @@ echo '</pre>';*/
 </div>
 
 <style>
-    .woo-raiffeisen-settings {
-        flex-basis: 100%;
+    .woo-raiffeisen-container {
+        display: flex;
+        flex-flow: row;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    .woo-raiffeisen-settings .input-text,
+    .woo-raiffeisen-settings .select {
+        width: 100% !important;
+        max-width: 400px;
     }
 
     .woo-raiffeisen-exchange-rates {
-        flex-basis: 30%;
         padding-left: 2%;
+    }
+
+    .exchange-rate-table {
+        width: 250px;
+    }
+
+    .exchange-rate-table th {
+        font-weight: 700;
+    }
+
+    @media (max-width: 1023px) {
+        .woo-raiffeisen-container {
+            flex-flow: column;
+        }
+        .woo-raiffeisen-exchange-rates {
+            padding-left: unset;
+        }
     }
 </style>
 
