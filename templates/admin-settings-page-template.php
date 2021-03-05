@@ -20,14 +20,14 @@ echo '</pre>';*/
     <?php if($this->exchange_rate == 'yes'): ?>
         <div class="woo-raiffeisen-exchange-rates"">
             <div class="heading">
-                <h2>Kursna Lista</h2>
-                <span><a href="#" id="fetch-rates">Ažuriraj</a></span>
+                <h2><?php _e('Exchange rates', 'woo-raiffeisen-serbia'); ?></h2>
+                <span><a href="#" id="fetch-rates"><?php _e('Refresh', 'woo-raiffeisen-serbia'); ?></a></span>
             </div>
             <table class="widefat fixed striped exchange-rate-table">
                 <?php if($this->exchange_rates_data && is_array($this->exchange_rates_data)): ?>
                     <thead>
                         <tr>
-                            <th>Na dan:</th>
+                            <th><?php _e('On date:', 'woo-raiffeisen-serbia'); ?></th>
                             <th><?php echo $this->exchange_rates_data['date']; ?></th>
                         </tr>
                     </thead>
@@ -43,7 +43,7 @@ echo '</pre>';*/
                 <?php else: ?>
                     <tbody id="the-list">
                         <tr>
-                            <td>Nema trenutno importovanih valuta i kurseva</td>
+                            <td><?php _e('There is no imported exchange rates. Please click "Refresh"', 'woo-raiffeisen-serbia'); ?></td>
                         </tr>
                     </tbody>
                 <?php endif; ?>

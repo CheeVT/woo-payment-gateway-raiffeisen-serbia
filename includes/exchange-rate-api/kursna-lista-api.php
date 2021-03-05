@@ -57,7 +57,7 @@ class KursnaListaAPI {
             $schedules["kursna_lista_srbija"] = array(
                 'interval' => 43200, //every 12 hours
                 //'interval' => 60, //every minute
-                'display' => __('Import exchange rate from API')
+                'display' => __('Import exchange rates from API', 'woo-raiffeisen-serbia')
             );
         }
         return $schedules;
@@ -78,17 +78,16 @@ class KursnaListaAPI {
         $content = file_get_contents($url);
 
         if (empty($content)) {
-            $response = ['status' => 'fail', 'msg' => 'Greška u preuzimanju podataka'];
-            //die('Greška u preuzimanju podataka');
+            $response = ['status' => 'fail', 'msg' => __('Something went wrong while fetching data.', 'woo-raiffeisen-serbia')];
         }
 
         $data = json_decode($content, true);
 
         if ($data['status'] == 'ok') {
-            $response = ['status' => 'success', 'msg' => 'Uspešno ažurirana lista!'];
+            $response = ['status' => 'success', 'msg' => __('Fetching data has been successfully completed.', 'woo-raiffeisen-serbia')];
             update_option(self::$option_name, $content);
         } else {
-            $msg = "Došlo je do greške: " . $data['code'] . " - " . $data['msg'];
+            $msg = sprintf(__('Something went wrong: %s - %s', 'woo-raiffeisen-serbia'), $data['code'], $data['msg']);
             $response = ['status' => 'fail', 'msg' => $msg];
         }        
 

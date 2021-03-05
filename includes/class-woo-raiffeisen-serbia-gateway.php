@@ -75,7 +75,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             'title' => array(
                 'title' => __('Title', 'woo-raiffeisen-serbia'),
                 'type' => 'text',
-                'description' => __('This controls the title for the payment method the customer sees during checkout.', 'wc-gateway-offline'),
+                'description' => __('This controls the title for the payment method the customer sees during checkout.', 'woo-raiffeisen-serbia'),
                 'default' => __('Raiffeisen Serbia Payment', 'woo-raiffeisen-serbia'),
                 'desc_tip' => true,
             ),
@@ -95,36 +95,38 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             'terminalid' => array(
                 'title' => __('Terminal ID', 'woo-raiffeisen-serbia'),
                 'type' => 'text',
-                'description' => __('This controls the title for the payment method the customer sees during checkout.', 'wc-gateway-offline'),
+                'description' => __('Provided by Raiffeisen bank.', 'woo-raiffeisen-serbia'),
                 'default' => __('', 'woo-raiffeisen-serbia'),
                 'desc_tip' => true
             ),
             'merchantid' => array(
                 'title' => __('Merchant ID', 'woo-raiffeisen-serbia'),
                 'type' => 'text',
-                'description' => __('This controls the title for the payment method the customer sees during checkout.', 'wc-gateway-offline'),
+                'description' => __('Provided by Raiffeisen bank.', 'woo-raiffeisen-serbia'),
                 'default' => __('', 'woo-raiffeisen-serbia'),
                 'desc_tip' => true,
             ),            
             'currency' => array(
                 'title' => __('Currency', 'woo-raiffeisen-serbia'),
                 'type' => 'select',
-                'description' => __('', 'wc-gateway-offline'),
+                'description' => __('Supported currency by Raiffeisen Payment gateway', 'woo-raiffeisen-serbia'),
                 'default' => __('', 'woo-raiffeisen-serbia'),
-                'desc_tip' => false,
+                'desc_tip' => true,
                 'options' => array('941' => 'Serbian dinar (RSD)')
                 //'options' => array('941' => 'Serbian dinar (RSD)', '978' => 'Euro (€)', '840' => 'Dollar ($)')
             ),
             'exchangeRate' => array(
-                'title' => __('Exhange rate API', 'woo-raiffeisen-serbia'),
+                'title' => __('Exchange rates API', 'woo-raiffeisen-serbia'),
                 'type' => 'checkbox',
-                'label' => __('If you use anything else then RSD for currency, add API ID to convert from EUR, USD, CHF, BGP to RSD', 'woo-raiffeisen-serbia'),
+                'label' => __('If you use no supported currency, use "Kursna lista" API to convert to RSD for Raiffeisen gateway', 'woo-raiffeisen-serbia'),
                 'default' => 'no',
+                'description' => __('Available currencies: EUR, USD, CHF, GBP, AUD, CAD, SEK, DKK, NOK, JPY, RUB, CNY, HRK, KWD, PLN, CZK, HUF, BAM <br> <a href="https://www.kursna-lista.info/kursna-lista-api" target="_blank">www.kursna-lista.info/kursna-lista-api</a>', 'woo-raiffeisen-serbia'),
+                //'desc_tip' => true
             ),
             'apiKey' => array(
                 'title' => __('API ID', 'woo-raiffeisen-serbia'),
                 'type' => 'text',
-                'description' => __('Please create API ID on www.kursna-lista.info', 'wc-gateway-offline'),
+                'description' => __('Please create API ID on www.kursna-lista.info', 'woo-raiffeisen-serbia'),
                 'default' => __('', 'woo-raiffeisen-serbia'),
                 'desc_tip' => true,
             ),            
@@ -216,10 +218,10 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             'Signature' => $signature
         );
 
-        echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woocommerce') . '</p>';
+        echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woo-raiffeisen-serbia') . '</p>';
         //if($this->checkout_currency != 'RSD') {
         if(! in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) {
-            echo '<p>Converted price for Raiffeisen gateway: <strong>' . $this->convert_to_rsd($this->get_order_total()) . ' RSD</strong></p>';
+            echo $this->print_converted_price($this->convert_to_rsd($this->get_order_total()));
         }
         $this->generate_raiffeisen_form($form_data);
         
@@ -239,13 +241,13 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         if(in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) return $total;
 
         if(! isset($this->exchange_rates_data[strtolower($this->checkout_currency)])) {
-            die('There is no currency in exchange rates! Please choose other payment method.');
+            die(__('There is no currency in exchange rates! Please choose other payment method.', 'woo-raiffeisen-serbia'));
         }
 
         $rate = $this->exchange_rates_data[strtolower($this->checkout_currency)];
 
-        if(! isset($rate['sre'])) {
-            die('There is no currency in exchange rates!');
+        if(! isset($rate['sre'])) {            
+            die(__('There is no currency in exchange rates!', 'woo-raiffeisen-serbia'));
         }
 
         return round($total * $rate['sre'], 2);
@@ -293,7 +295,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         if (empty($_POST)) {
             $callback = json_decode(file_get_contents("php://input"));
             if (empty($callback)) {
-                wp_die('go away!');
+                die('go away!');
             }
             $_POST = array();
             foreach ($callback as $key => $val) {
@@ -301,8 +303,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             }
         }
         
-        if(! $this->signature_verification($_POST)) {
-            wp_die('signature verification failed!');
+        if(! $this->signature_verification($_POST)) {            
+            die(__('signature verification failed!', 'woo-raiffeisen-serbia'));
         };
 
         $order = new WC_Order($_POST['OrderID']);
@@ -354,11 +356,18 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             if(! in_array($this->checkout_currency, $this->rsd_currency_abbreviations)) {
                 $total = $this->convert_to_rsd($total);
 
-                $description .= '<p>';
-                $description .= 'Converted price for Raiffeisen gateway: <strong>' . $total . ' RSD</strong>';
-                $description .= '</p>';
+                $description .= $this->print_converted_price($total);
             }
         }
+        return $description;
+    }
+
+    protected function print_converted_price($total)
+    {        
+        $description = '<p>';
+        $description .= sprintf(__('Converted price for Raiffeisen gateway: %s', 'woo-raiffeisen-serbia'), '<strong>'.$total.' RSD</strong>');
+        $description .= '</p>';
+
         return $description;
     }
 
@@ -374,7 +383,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
             echo '<table class="wc-order-totals">';
             echo '<tr>';
-            echo '<td class="label label-highlight">Paid in RSD:</td>';
+            echo '<td class="label label-highlight">' . __('Paid in RSD', 'woo-raiffeisen-serbia') . ':</td>';
             echo '<td width="1%"></td>';
             echo '<td class="total">';
             echo '<span class="woocommerce-Price-amount amount">';
