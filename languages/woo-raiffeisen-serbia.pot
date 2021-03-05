@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: BUG-EMAIL-ADDR <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2021-03-05 14:58+0100\n"
-"PO-Revision-Date: 2021-03-05 16:13+0100\n"
+"PO-Revision-Date: 2021-03-05 22:20+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -34,15 +34,15 @@ msgstr ""
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:70
 msgid "Enable/Disable"
-msgstr ""
+msgstr "Uključi/Isključi"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:72
 msgid "Enable Raiffeisen Serbia Payment Gateway"
-msgstr ""
+msgstr "Uključite Raiffeisen način plaćanja u Srbiji"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:76
 msgid "Title"
-msgstr ""
+msgstr "Naslov"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:78
 msgid ""
@@ -52,58 +52,60 @@ msgstr ""
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:79
 msgid "Raiffeisen Serbia Payment"
-msgstr ""
+msgstr "Raiffeisen plaćanje karticama Srbija"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:83
 msgid "Description"
-msgstr ""
+msgstr "Opis"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:85
 msgid "Payment method description that the customer will see on your checkout."
-msgstr ""
+msgstr "Opis načina plaćanja koje kupci vide na kasi"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:86
 msgid "Pay by credit card. Redirect to Raiffeisen gateway to process payment."
-msgstr ""
+msgstr "Plaćanje karticom. Redirekcija na Raiffeisen gateway gde se odvija proces plaćanja"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:90
 msgid "Test mode"
-msgstr ""
+msgstr "Test mode"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:92
 msgid "Enable Test Mode"
-msgstr ""
+msgstr "Uključi test mode"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:96
 msgid "Terminal ID"
-msgstr ""
+msgstr "Terminal ID"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:98
 #: includes/class-woo-raiffeisen-serbia-gateway.php:105
 msgid "Provided by Raiffeisen bank."
-msgstr ""
+msgstr "Dobija se od banke"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:103
 msgid "Merchant ID"
-msgstr ""
+msgstr "Merchant ID"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:110
 msgid "Currency"
-msgstr ""
+msgstr "Valuta"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:112
 msgid "Supported currency by Raiffeisen Payment gateway"
-msgstr ""
+msgstr "Podržane valute za Raiffeisen gateway"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:119
 msgid "Exchange rates API"
-msgstr ""
+msgstr "Kursna lista API"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:121
 msgid ""
 "If you use no supported currency, use \"Kursna lista\" API to convert to RSD "
 "for Raiffeisen gateway"
 msgstr ""
+"Ako koristite valutu koja nije podržana, koristite \\\"Kursna lista\\\" API "
+"da \" \"konvertujete u dinare za Raiffeisen plaćanje"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:123
 msgid ""
@@ -112,6 +114,10 @@ msgid ""
 "info/kursna-lista-api\" target=\"_blank\">www.kursna-lista.info/kursna-lista-"
 "api</a>"
 msgstr ""
+"Dostupne valute preko APIja: EUR, USD, CHF, GBP, AUD, CAD, SEK, DKK, NOK, \" "
+"\"JPY, RUB, CNY, HRK, KWD, PLN, CZK, HUF, BAM <br> <a href=\\\"https://www.\""
+" \"kursna-lista.info/kursna-lista-api\\\" target=\\\"_blank\\\">www.kursna-"
+"lista.\" \"info/kursna-lista-api</a>"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:127
 msgid "API ID"
@@ -123,13 +129,15 @@ msgstr ""
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:134
 msgid "Show card logos"
-msgstr ""
+msgstr "Prikažite logoe kartica"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:136
 msgid ""
 "Show Visa, MasterCard and Raiffeisen Bank logos in the payment methods "
 "section on checkout"
 msgstr ""
+"Prikažite Visa, MasterCard i Raiffeisen banka logo u tipovima plaćanja na "
+"kasi"
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:221
 msgid ""
@@ -157,7 +165,7 @@ msgstr ""
 
 #: includes/class-woo-raiffeisen-serbia-gateway.php:386
 msgid "Paid in RSD"
-msgstr ""
+msgstr "Plaćeno u RSD"
 
 #: includes/class-woo-raiffeisen-serbia.php:20
 msgid "Settings"
@@ -177,7 +185,7 @@ msgstr ""
 
 #: includes/exchange-rate-api/kursna-lista-api.php:87
 msgid "Fetching data has been successfully completed."
-msgstr ""
+msgstr "Preuzimanje podataka je uspešno završeno."
 
 #: includes/exchange-rate-api/kursna-lista-api.php:90
 #, php-format
@@ -192,15 +200,15 @@ msgstr ""
 
 #: templates/admin-settings-page-template.php:23
 msgid "Exchange rates"
-msgstr ""
+msgstr "Kursna lista"
 
 #: templates/admin-settings-page-template.php:24
 msgid "Refresh"
-msgstr ""
+msgstr "Osveži"
 
 #: templates/admin-settings-page-template.php:30
 msgid "On date:"
-msgstr ""
+msgstr "Na dan:"
 
 #: templates/admin-settings-page-template.php:46
 msgid "There is no imported exchange rates. Please click \"Refresh\""
