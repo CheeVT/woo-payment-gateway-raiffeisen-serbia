@@ -2,6 +2,8 @@
 
 class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
+    const ORDER_ID_SEPARATOR = '-';
+
     public $test_mode;
     public $payment_gateway_url;
     public $terminal_id;
@@ -189,6 +191,10 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         );
     }
 
+    protected function get_unique_order_id($order_id) {
+        return $order_id . self::ORDER_ID_SEPARATOR . time();
+    }
+
     /**
      * Order page
      * @param $order
@@ -199,17 +205,15 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         
         $total_amount = $this->total_in_rsd($this->get_order_total());
 
+        $unique_order_id = $this->get_unique_order_id($order_id);
+
         //generate signature with .pem file
-        $signature = $this->generate_signature($purchase_time, $order_id, $total_amount);
-
-        //var_dump($total_amount);
-        //exit;
-
+        $signature = $this->generate_signature($purchase_time, $unique_order_id, $total_amount);
         
         $form_data = array(
             'TotalAmount' => $total_amount,
             //'returnUrl' => WC()->api_request_url('WooRaiffeisenSerbiaGateway'),
-            'OrderID' => $order_id,
+            'OrderID' => $unique_order_id,
             'MerchantID' => $this->merchant_id,
             'TerminalID' => $this->terminal_id,
             'Currency' => $this->currency,
@@ -291,7 +295,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
 
     public function transaction_verification()
     {
-        global $woocommerce;
+        global $woocommerce;        
 
         if (empty($_POST)) {
             $callback = json_decode(file_get_contents("php://input"));
@@ -308,7 +312,8 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             die(__('signature verification failed!', 'woo-raiffeisen-serbia'));
         };
 
-        $order = new WC_Order($_POST['OrderID']);
+        list($order_id) = explode(self::ORDER_ID_SEPARATOR, $_POST['OrderID']);
+        $order = new WC_Order($order_id);
 
         if($this->is_payment_process_success($_POST['TranCode'])) {
             $order->update_meta_data('total_paid_in_rsd', $this->convert_to_rsd($order->get_total()));
