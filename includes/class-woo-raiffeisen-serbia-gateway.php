@@ -208,14 +208,15 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
         
         $form_data = array(
             'TotalAmount' => $total_amount,
-            'returnUrl' => WC()->api_request_url('WooRaiffeisenSerbiaGateway'),
+            //'returnUrl' => WC()->api_request_url('WooRaiffeisenSerbiaGateway'),
             'OrderID' => $order_id,
             'MerchantID' => $this->merchant_id,
             'TerminalID' => $this->terminal_id,
             'Currency' => $this->currency,
             'PurchaseTime' => $purchase_time,
             'locale' => 'rs',
-            'Signature' => $signature
+            'Signature' => $signature,
+            //'Version' => 1,
         );
 
         echo '<p>' . __('Thank you for your order, please click the button below to pay with Raiffeisen.', 'woo-raiffeisen-serbia') . '</p>';
@@ -284,7 +285,7 @@ class WooRaiffeisenSerbiaGateway extends WC_Payment_Gateway {
             echo '<input type="hidden" name="' . $name . '" value="' . $value . '" />';
         }
         echo '<button type="submit">PAY</button>';
-        //echo '<script type="text/javascript">document.getElementById("submit_raiffeisen_payment_form").submit();</script>';
+        echo '<script type="text/javascript">document.getElementById("submit_raiffeisen_payment_form").submit();</script>';
         echo '</form>';
     }
 
